@@ -60,7 +60,12 @@ def convert_date_to_timestamp(date_str):
             logging.error(f"Error parsing date: {e}")
             return None
 
+
 # Routes
+@app.route('/')
+def server_status():
+    return jsonify({"message": "Server is running"}), 200
+
 @app.route('/text', methods=['POST'])
 def start_and_chat():
     core_functions.check_api_key()
