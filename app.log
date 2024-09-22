@@ -1,0 +1,12 @@
+2024-09-22 09:03:28,695 [INFO] OpenAI version is compatible.
+2024-09-22 09:03:28,734 [INFO] [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:8000
+ * Running on http://172.31.196.80:8000
+2024-09-22 09:03:28,736 [INFO] [33mPress CTRL+C to quit[0m
+2024-09-22 09:04:17,529 [INFO] API key authentication successful for request from 127.0.0.1
+2024-09-22 09:04:18,305 [INFO] Task created in HubSpot with ID: 35376898012
+2024-09-22 09:04:18,306 [INFO] 127.0.0.1 - - [22/Sep/2024 09:04:18] "POST /create_hubspot_task HTTP/1.1" 200 -
+2024-09-22 09:04:32,716 [INFO] 172.31.196.80 - - [22/Sep/2024 09:04:32] "GET / HTTP/1.1" 200 -
+2024-09-22 09:04:57,695 [WARNING] Invalid API key provided from 127.0.0.1
+2024-09-22 09:04:57,697 [INFO] 127.0.0.1 - - [22/Sep/2024 09:04:57] "[31m[1mPOST /create_hubspot_task HTTP/1.1[0m" 401 -

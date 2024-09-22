@@ -10,7 +10,20 @@ from hubspot.crm.objects.tasks import SimplePublicObjectInputForCreate, ApiExcep
 from datetime import datetime
 
 # Configure logging
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s [%(levelname)s] %(message)s',
+    handlers=[
+        logging.FileHandler('app.log'),
+        logging.StreamHandler()
+    ]
+)
+
+# Get valid API keys from environment variable
+VALID_API_KEYS = os.environ.get('VALID_API_KEYS')
+if not VALID_API_KEYS:
+    raise ValueError("No valid API keys found in environment variables")
+VALID_API_KEYS = VALID_API_KEYS.split(',')
 
 # Create Flask app
 app = Flask(__name__)
@@ -60,6 +73,16 @@ def convert_date_to_timestamp(date_str):
             logging.error(f"Error parsing date: {e}")
             return None
 
+def check_api_key():
+    api_key = request.headers.get('X-API-KEY')
+    if not api_key:
+        logging.warning(f"No API key provided in request from {request.remote_addr}")
+        return False
+    if api_key not in VALID_API_KEYS:
+        logging.warning(f"Invalid API key provided from {request.remote_addr}")
+        return False
+    logging.info(f"API key authentication successful for request from {request.remote_addr}")
+    return True
 
 # Routes
 @app.route('/')
@@ -68,7 +91,9 @@ def server_status():
 
 @app.route('/text', methods=['POST'])
 def start_and_chat():
-    core_functions.check_api_key()
+    if not check_api_key():
+        return jsonify({'error': 'Unauthorized'}), 401
+
     data = request.json
     user_input = data.get('message', '')
 
@@ -98,6 +123,9 @@ def start_and_chat():
 
 @app.route('/create_hubspot_task', methods=['POST'])
 def create_hubspot_task():
+    if not check_api_key():
+        return jsonify({'error': 'Unauthorized'}), 401
+
     data = request.json
     mail1 = data.get('mail1')
     mail2 = data.get('mail2')
@@ -131,6 +159,7 @@ def create_hubspot_task():
 
     try:
         api_response = client_hubspot.crm.objects.tasks.basic_api.create(simple_public_object_input_for_create=simple_public_object_input_for_create)
+        logging.info(f"Task created in HubSpot with ID: {api_response.id}")
         return jsonify(api_response.to_dict())
     except TasksApiException as e:
         logging.error(f"Exception when calling basic_api->create: {e}")
@@ -138,6 +167,9 @@ def create_hubspot_task():
 
 @app.route('/get_hubspot_owners', methods=['GET'])
 def get_hubspot_owners():
+    if not check_api_key():
+        return jsonify({'error': 'Unauthorized'}), 401
+
     try:
         owners_page = client_hubspot.crm.owners.owners_api.get_page(limit=100, archived=False)
         owners_list = []
@@ -154,6 +186,7 @@ def get_hubspot_owners():
 
             owners_list.append(owner_dict)
 
+        logging.info(f"Retrieved {len(owners_list)} HubSpot owners")
         return jsonify(owners_list)
     except OwnersApiException as e:
         logging.error(f"Exception when calling owners_api->get_page: {e}")
