@@ -140,5 +140,4 @@ The application logs important events, such as successful or failed API calls, i
 
 To deploy the Flask app, ensure your environment variables are set and the required dependencies are installed. The app can run in Docker, DigitalOcean, or other services supporting Flask apps.
 
-## License
-This project is licensed under the MIT License.
+
